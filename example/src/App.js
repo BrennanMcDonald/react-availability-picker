@@ -1,12 +1,27 @@
 import React, { Component } from 'react'
 
-import ExampleComponent from 'react-availability-picker'
+
+import AvailabilityPicker from 'react-availability-picker'
 
 export default class App extends Component {
-  render () {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      colValues: []
+    }
+  }
+
+  onChange = (value) => {
+    this.setState({
+      colValues: value
+    })
+  }
+
+  render() {
     return (
-      <div>
-        <ExampleComponent text='Modern React component module' />
+      <div className="fullheight">
+        <AvailabilityPicker style={{ width: "500px", height: "500px" }} days={5} hours={8} value={this.state.colValues} onChange={this.onChange} />
       </div>
     )
   }
