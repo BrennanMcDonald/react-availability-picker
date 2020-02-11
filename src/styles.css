@@ -1,0 +1,48 @@
+/* add css styles here (optional) */
+
+.container {
+    margin: 10px;
+}
+
+.test {
+    display: inline-block;
+    margin: 2em auto;
+    border: 2px solid #000;
+    font-size: 2em;
+}
+
+.calendar7Days {
+    display: grid;
+    grid-template-columns: 14.28% 14.28% 14.28% 14.28% 14.28% 14.28% 14.28%;
+    height: 100%;
+}
+
+.wrapper {}
+
+.header {
+    display: grid;
+    grid-template-columns: 14.28% 14.28% 14.28% 14.28% 14.28% 14.28% 14.28%;
+}
+
+.headerItem {
+    text-align: center;
+}
+
+.dateRow {
+    height: 100%;
+    border-right: solid 1px black;
+    display: grid;
+}
+
+.dateRow div {
+    border-bottom: solid 1px black;
+}
+
+.row {
+    border-right: solid 10px red;
+    background: green;
+}
+
+.selectedRow {
+    background-color: red;
+}

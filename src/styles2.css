@@ -1,0 +1,17 @@
+.row {
+    border-right: solid 10px red;
+    background: green;
+}
+
+.row:last-of-type {
+    border: solid 2px black;
+}
+
+.row {
+    border-right: solid 10px red;
+    background: green;
+}
+
+.selectedRow {
+    background-color: red;
+}
