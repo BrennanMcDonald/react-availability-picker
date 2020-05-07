@@ -13,7 +13,6 @@ export default class App extends Component {
   }
 
   onChange = (value) => {
-    console.log(value);
     this.setState({
       colValues: value
     })
@@ -22,7 +21,7 @@ export default class App extends Component {
   render() {
     return (
       <div className="fullheight">
-        <AvailabilityPicker style={{ width: "500px", height: "500px" }} days={5} hours={8} value={this.state.colValues} onChange={this.onChange} />
+        <AvailabilityPicker style={{ width: "500px", height: "500px" }} days={7} hours={8} value={this.state.colValues} onChange={this.onChange} />
       </div>
     )
   }
