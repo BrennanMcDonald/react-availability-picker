@@ -21,9 +21,12 @@ export default class AvailabilityPicker extends Component {
       selecting: false,
       start: 0,
       min: this.props.hours + 1,
-      max: -1
+      max: -1,
+      blob: {},
+      blobs: []
     }
     this.createHours();
+    window.addEventListener("mousemove", this.onMouseMove)
   }
 
   createHours = () => {
@@ -50,11 +53,19 @@ export default class AvailabilityPicker extends Component {
   createDays = () => {
     let table = []
     for (let i = 0; i < this.state.days; i++) {
+      let colBlobs = this.state.blobs.filter(x => x.column == i);
+      if (this.state.blob.column == i) {
+        colBlobs.push(this.state.blob)
+      }
       table.push(
-        <div id={`date-row-${i}`} data-col={i} className={styles.dateRow} onMouseUp={this.onMouseUp}>
+        <div key={i.toString()} id={`date-row-${i}`} data-col={i} className="date-row" onMouseUp={this.onMouseUp}>
+          {this.createBlobs(colBlobs)}
           {
             this.props.value[i].map((x, j) => {
-              return <div data-col={i} data-row={j} onMouseOver={this.onMouseOver} className={x.selected ? "row" : "selectedRow"} ></div>
+              if (x.selected) {
+                console.log(x)
+              }
+              return <div key={i.toString() + j.toString()} data-col={i} data-row={j} onMouseOver={this.onMouseOver} onMouseDown={this.oneMouseDown} className={x.selected ? "row" : "selectedRow"} ></div>
             })
           }
         </div>)
@@ -62,65 +73,91 @@ export default class AvailabilityPicker extends Component {
     return table
   }
 
-  oneMouseDown = (event) => {
-    var colsArray = this.props.value;
-    this.setState({
-      mouseDown: !this.state.mouseDown,
-      selectedCol: event.target.dataset.col,
-      selecting: !colsArray[event.target.dataset.col][event.target.dataset.row].selected,
-      start: event.target.dataset.row,
-      min: this.props.hours + 1,
-      max: -1
-    });
-    if (!this.state.mouseDown) {
-      colsArray[event.target.dataset.col][event.target.dataset.row].selected = !colsArray[event.target.dataset.col][event.target.dataset.row].selected;
-      this.props.onChange(colsArray);
-    }
+  createBlobs = (blobList) => {
+    let blobHTML = [];
+    blobList.forEach((x, j) => {
+      blobHTML.push(<div style={{ top: x.start, height: x.stop - x.start, width: "100px", position: "absolute", backgroundColor: "red", width: "50px", userSelect: "none" }} className="blob" onClick={this.deleteBlob} data-id={x.blobID}>{x.blobID}</div>)
+    })
+    return blobHTML;
   }
 
-  onMouseOver = (event) => {
-    var colsArray = this.props.value;
-    if (this.state.mouseDown) {
-      var row = event.target.dataset.row;
-      var col = event.target.dataset.col;
-      this.setState({
-        min: Math.min(this.state.min, row)
-      })
-      this.setState({
-        max: Math.max(this.state.max, row)
-      })
-      if (this.state.selectedCol === col) {
-        for (var i = this.state.min; i <= this.state.max; i++) {
-          colsArray[col][i].selected = !this.state.selecting;
-        }
-        for (var i = Math.min(this.state.start, row); i <= Math.max(this.state.start, row); i++) {
-          colsArray[col][i].selected = this.state.selecting;
-        }
-      } else {
-        for (var i = this.state.min; i <= this.state.max; i++) {
-          colsArray[this.state.selectedCol][i].selected = !this.state.selecting;
-        }
-        for (var i = Math.min(this.state.start, row); i <= Math.max(this.state.start, row); i++) {
-          colsArray[this.state.selectedCol][i].selected = this.state.selecting;
-        }
-      }
-      this.props.onChange(colsArray);
-    }
+  onMouseDown = (event) => {
+    this.setState({
+      mouseDown: true
+    });
+    this.startDrag(event);
+  }
+
+  onMouseMove = (event) => {
+    if (event && this.state.mouseDown)
+      this.whileDragging(event);
   }
 
   onMouseUp = (event) => {
     this.setState({
       mouseDown: false
     });
+    this.endDrag(event);
+  }
+
+  deleteBlob = (event) => {
+    let id = parseInt(event.target.dataset.id);
+    console.log(id);
+    let blobs = this.state.blobs.filter(x => x.blobID != id);
+    console.log(blobs)
+    this.setState({
+      blobs: blobs
+    });
+  }
+
+  startDrag(event) {
+    let start = (Math.round(event.clientY / 25) * 25);
+    console.log()
+    // Initialize new blob in state
+    this.setState({
+      blob: {
+        blobID: Math.round(Math.random() * 10000),
+        start: start,
+        stop: start,
+        column: event.target.dataset.col
+      }
+    });
+  }
+
+  whileDragging(event) {
+    // Update blob in state
+    var { blob } = this.state;
+    let stop = (Math.round(event.clientY / 25) * 25);
+    blob.stop = stop;
+    this.setState({
+      blob: blob
+    });
+  }
+
+  endDrag(event) {
+    // Commit blob to parent's onChange method
+    var { blobs, blob } = this.state;
+    let stop = (Math.round(event.clientY / 25) * 25);
+    blob.stop = stop;
+    if (blob.start !== blob.stop) {
+      blobs.push(blob);
+      console.log(blob.start, blob.stop, blob.column)
+      this.setState({
+        blobs: blobs
+      });
+    }
+    this.setState({
+      blob: {}
+    })
   }
 
   render() {
     return (
       <div style={{ ...this.props.style }} className={styles.wrapper}>
         <div className={styles.header}>
-        {this.createHeader()}
+          {this.createHeader()}
         </div>
-        <div className={styles.calendar7Days} onMouseDown={this.oneMouseDown} onMouseUp={this.onMouseUp}>
+        <div className={styles.calendar7Days} onMouseDown={this.onMouseDown} onMouseMove={this.onMouseMove()}>
           {this.createDays()}
         </div>
       </div>
