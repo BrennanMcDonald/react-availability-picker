@@ -17,6 +17,11 @@
     height: 100%;
 }
 
+.calendar5Days {
+    display: grid;
+    grid-template-columns: 14.28% 14.28% 14.28% 14.28% 14.28% 14.28% 14.28%;
+    height: 100%;
+}
 .wrapper {}
 
 .header {
@@ -40,7 +45,6 @@
 
 .row {
     border-right: solid 10px red;
-    background: green;
 }
 
 .selectedRow {
