@@ -60,3 +60,26 @@ body {
     height: 2px;
     cursor: ns-resize;
 }
+
+.rdp-grid {
+    display:grid;
+    grid-template-areas: "none header" "date grid";
+    grid-template-columns: 50px auto;
+    grid-template-rows: 50px auto;
+    border:solid 1px blue;
+}
+.rdp-header {
+    grid-area: header;
+    border:solid 1px red;
+}
+
+.rdp-date-column {
+    grid-area: date;
+    border:solid 1px orange;
+}
+
+.rdp-body {
+    grid-area: grid;
+    position: relative;
+    border:solid 1px green;
+}

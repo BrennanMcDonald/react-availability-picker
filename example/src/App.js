@@ -21,23 +21,19 @@ export default class App extends Component {
   }
 
   render() {
-    var startTime = new Date();
-    var endTime = new Date();
+    var startDate = new Date();
+    var endDate = new Date();
 
-    startTime.setHours(9);
-    startTime.setMinutes(0);
-    startTime.setSeconds(0);
-    endTime.setHours(17);
-    endTime.setMinutes(0);
-    endTime.setSeconds(0);
+    endDate.setDate(startDate.getDate() + 7)
 
     return (
       <div className="fullheight">
         <AvailabilityPicker 
           style={{ width: "500px", height: "500px" }} 
-          days={7}
-          startTime={startTime}
-          endTime={endTime}
+          startTime={9}
+          stopTime={20}
+          startDate={startDate}
+          stopDate={endDate}
           value={this.state.colValues}
           onChange={this.onChange} />
       </div>

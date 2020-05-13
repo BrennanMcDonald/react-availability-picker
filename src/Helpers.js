@@ -12,11 +12,10 @@ export function snap(values, top) {
     return closest
 }
 
-export function generateSnapValues(step) {
+export function generateSnapValues(step, topOffset, clientHeight) {
     var snap = [0]
-    var start = document.getElementById("DatePickerContent").offsetTop;
-    var current = start;
-    while(current < document.getElementById("DatePickerContent").offsetTop + document.getElementById("DatePickerContent").clientHeight) {
+    var current = topOffset;
+    while(current < topOffset + clientHeight) {
         snap.push(current);
         current += step;
     }
@@ -29,4 +28,22 @@ export function topToTime(startTime, endTime, top, total, column) {
     var newTime = new Date((new Date(startTime)).getTime() + deltaTime);
     newTime.setDate(startTime.getDate() + column)
     return newTime;
+}
+
+
+export function generateGridCSS(days, hours) {
+    var css = []
+    for(var row = 0; row < hours; row++) {
+        var rowString = "\"";
+        for(var column = 0; column < days; column++){
+            if (row === 0) {
+                rowString += (column === 0)?"none ":"header "
+            } else {
+                rowString += (column === 0)?"date ": "grid "
+            }
+        }
+        rowString = rowString.trim() + "\""
+        css.push(rowString)
+    }
+    return css.join(" ")
 }

@@ -5,11 +5,23 @@ import styles from './styles.css';
 import './styles2.css';
 import BlobContainer from './BlobContainer';
 
-import { generateRowSizes, topToTime } from './Helpers';
+import { generateRowSizes, topToTime, generateGridCSS } from './Helpers';
 
 export default class AvailabilityPicker extends Component {
   static propTypes = {
-    text: PropTypes.string
+    // If using start-end mode
+    startDate: PropTypes.instanceOf(Date),
+    stopDate: PropTypes.instanceOf(Date),
+    startTime: PropTypes.number,
+    stopTime: PropTypes.number,
+
+    // If using day-hour mode
+    days: PropTypes.number,
+    hours: PropTypes.number,
+
+    // Override custom headers and dateFormats
+    customHeaders: PropTypes.arrayOf(PropTypes.string),
+    customDateFormat: PropTypes.string,
   }
 
   defaultHeaders = [
@@ -18,18 +30,34 @@ export default class AvailabilityPicker extends Component {
 
   constructor(props) {
     super(props);
-    // Todo: checks here
-    this.state = {
-      days: this.props.days || 7,
-      hours: this.props.endTime.getHours() - this.props.startTime.getHours(),
-      startTime: this.props.startTime,
-      endTime: this.props.endTime,
-      blob: {},
-      blobs: [],
-      deletedBlobs: [],
-      debugLog: []
+
+    var dayHourMode = this.props.days !== undefined && this.props.hours !== undefined
+    var startEndMode = this.props.startDate !== undefined && this.props.stopDate !== undefined && this.props.startTime !== undefined && this.props.stopTime !== undefined
+    if ((dayHourMode || startEndMode) === false)
+      throw new Error("You must set either Day and Hour or Start and End times.")
+
+
+
+    if (dayHourMode) {
+      // Todo: checks here
+      this.state = {
+        days: this.props.days,
+        hours: this.props.hours || 8,
+        gridRows: this.props.days + 1,
+        gridColumns: this.props.hours + 1
+      }
+    } else {
+      // Todo: checks here
+      this.state = {
+        startDate: this.props.startDate,
+        stopDate: this.props.stopDate,
+        startTime: this.props.startTime,
+        endTime: this.props.endTime,
+        gridRows: this.props.stopDate.getDate() - this.props.startDate.getDate(),
+        gridColumns: this.props.stopTime - this.props.startTime
+      }
     }
-    this.createHours();
+
   }
 
   onChange = (BlobList) => {
@@ -49,16 +77,6 @@ export default class AvailabilityPicker extends Component {
     })
   }
 
-  createHours = () => {
-    var colsArray = this.props.value;
-    for (let i = 0; i < this.state.days; i++) {
-      colsArray.push([])
-      for (let j = 0; j < this.state.hours; j++) {
-        colsArray[i].push({ selected: false })
-      }
-    }
-  }
-
   createHeader = () => {
     let table = []
     for (let i = 0; i < this.state.days; i++) {
@@ -75,12 +93,11 @@ export default class AvailabilityPicker extends Component {
 
     for (var row = 0; row < this.state.hours + 1; row++) {
       rows.push(<div key={row} style={{ width: "100%", height: "60px" }} data-col={col} data-row={row}>
-        <span style={{ top: "-10px", position: "relative" }}>{((new Date(this.state.startTime)).getHours() + row) % 24}:00</span>
+        <span style={{ top: "-10px", position: "relative" }}>{(this.state.startTime + row) % 24}:00</span>
       </div>)
     }
 
     return rows;
-
   }
 
   createRows = (col) => {
@@ -105,55 +122,42 @@ export default class AvailabilityPicker extends Component {
         </div>)
     }
     return <div id="RowContainer">
-      <div style={generateRowSizes(this.state.days - 1)}>{RowTable}</div>
+      <div style={generateRowSizes(this.state.gridRows - 1)}>{RowTable}</div>
     </div>
-  }
-
-
-  deleteBlob = (event) => {
-    let { blobs } = this.state;
-    blobs = blobs.filter(x =>
-      x.blobID != parseInt(event.target.dataset.id)
-    )
-    this.setState({
-      blobs: blobs
-    });
   }
 
   render() {
     return (
-      <div style={{ ...this.props.style }} className={styles.wrapper}>
-        <div className="headerRow" style={{ display: "grid", gridTemplateColumns: "50px auto" }}>
-          <div style={{ width: "50px" }}></div>
-          <div style={generateRowSizes(this.state.days - 1)}>
-            {this.createHeader()}
-          </div>
-        </div>
-
-        <div className="bodyRow" style={{ display: "grid", gridTemplateColumns: "50px auto" }}>
-          <div style={{ width: "50px" }}>{this.dateRow()}</div>
-          <div id="DatePickerContent" style={{ position: 'relative' }}>
-            {this.createDays()}
-            <BlobContainer style={{ position: "absolute", width: "100%", background: "rgba(255,0,0,0.2)", top: 0, bottom: "50px" }} onChange={this.onChange} />
-          </div>
-        </div>
-
-        <div>
-          {
-            this.state.deletedBlobs.map(x => {
-              return <div>{x}</div>
-            })
-          }
-        </div>
-        <hr />
-        <div>
-          {
-            this.state.blobs.map(x => {
-              return <div>{x.blobID} {!this.state.deletedBlobs.includes(x.blobID)}</div>
-            })
-          }
+      <div id="ReactDatePicker" className="rdp-grid" style={this.props.style}>
+        <div className="rdp-header">{this.createHeader()}</div>
+        <div className="rdp-date-column">{this.dateRow()}</div>
+        <div className="rdp-body">
+          {this.createDays()}
+          <BlobContainer style={{ position: "absolute", width: "100%", background: "rgba(255,0,0,0.2)", top: 0, bottom: "50px" }} onChange={this.onChange} />
         </div>
       </div>
-    )
+    );
   }
 }
+
+/*
+
+
+        <div style={{ ...this.props.style }} className={styles.wrapper}>
+          <div className="headerRow" style={{ display: "grid", gridTemplateColumns: "50px auto" }}>
+            <div style={{ width: "50px" }}></div>
+            <div style={generateRowSizes(this.state.gridRows - 1)}>
+              {this.createHeader()}
+            </div>
+          </div>
+
+          <div className="bodyRow" style={{ display: "grid", gridTemplateColumns: "50px auto" }}>
+            <div style={{ width: "50px" }}>{this.dateRow()}</div>
+            <div id="DatePickerContent" style={{ position: 'relative' }}>
+              {this.createDays()}
+              <BlobContainer style={{ position: "absolute", width: "100%", background: "rgba(255,0,0,0.2)", top: 0, bottom: "50px" }} onChange={this.onChange} />
+            </div>
+          </div>
+        </div>
+
+*/

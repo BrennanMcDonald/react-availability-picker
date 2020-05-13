@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { generateRowSizes, snap, generateSnapValues } from './Helpers';
 
 import DateBlob from './DateBlob';
-import MouseEnums from './MouseEnums';
+import { MouseEnums } from './Enums';
 
 export default class BlobContainer extends React.Component {
   constructor(props) {
@@ -14,13 +14,18 @@ export default class BlobContainer extends React.Component {
       MOUSE_EVENT: "",
       tempBlob: {},
       cols: 7 | this.props.cols,
-      rows: 8 | this.props.rows
+      rows: 8 | this.props.rows,
     }
   }
 
   componentDidMount() {
+    var ReactDatePicker = document.getElementById("ReactDatePicker");
+    var rdpBody = Array.from(ReactDatePicker.children).filter(x => x.classList.contains("rdp-body"))[0];
+    var snapValues = generateSnapValues(30, rdpBody.getBoundingClientRect().top, rdpBody.getBoundingClientRect().height)
     this.setState({
-      snapValues: generateSnapValues(30)
+      snapValues: snapValues,
+      ReactDatePicker: ReactDatePicker,
+      rdpBody: rdpBody
     })
   }
 
@@ -32,14 +37,10 @@ export default class BlobContainer extends React.Component {
     });
   }
 
-  addBlob = () => {
-
-  }
-
   onMouseDown = (event) => {
     if (event.target.dataset.clickType === "blob-row" || event.target.dataset.clickType === "blob-container") {
       var { blobs } = this.state;
-      let start = snap(this.state.snapValues, event.clientY - document.getElementById("DatePickerContent").offsetTop);
+      let start = snap(this.state.snapValues, event.clientY - this.state.rdpBody.offsetTop);
       let tempBlob = {
         blobID: Math.round(Math.random() * 10000),
         start: start,
@@ -95,7 +96,6 @@ export default class BlobContainer extends React.Component {
           MOUSE_EVENT: ""
         });
         break;
-        break;
       default:
         break;
     }
@@ -108,7 +108,7 @@ export default class BlobContainer extends React.Component {
       case MouseEnums.RESIZE_BLOB:
         var { blobs, selectedBlobID } = this.state;v
         var tempBlob = blobs.get(selectedBlobID);
-        tempBlob.stop = snap(this.state.snapValues, (event.clientY - document.getElementById("DatePickerContent").offsetTop));
+        tempBlob.stop = snap(this.state.snapValues, (event.clientY - this.state.rdpBody.offsetTop));
         blobs.set(selectedBlobID, tempBlob)
         this.setState({
           blobs: blobs
@@ -138,7 +138,7 @@ export default class BlobContainer extends React.Component {
         // Update blob in state
         var { blobs, selectedBlobID } = this.state;
         var blob = blobs.get(selectedBlobID)
-        let stop = snap(this.state.snapValues, event.clientY - document.getElementById("DatePickerContent").offsetTop);
+        let stop = snap(this.state.snapValues, event.clientY - this.state.ReactDatePicker.offsetTop);
         blob.stop = stop;
         blobs.set(selectedBlobID, blob);
         this.setState({
