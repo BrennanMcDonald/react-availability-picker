@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+
 import styles from './styles.css';
 import './styles2.css';
 
+
 export default class DateBlob extends Component {
-
-
   EVENTS = {
     MOVE: "MOVE",
     RESIZE: "RESIZE"
@@ -17,14 +17,9 @@ export default class DateBlob extends Component {
     this.state = {
       moveStart: 0,
       mouseDown: false,
-      blob: this.props.blob
+      blob: this.props.blob,
+      parents: []
     }
-  }
-
-  componentDidMount() {
-  }
-
-  onClick = () => {
   }
 
   snap = (top) => {
@@ -34,64 +29,10 @@ export default class DateBlob extends Component {
     return closest
   }
 
-  onMouseDown = (event) => {
-    event.target.parentElement.parentElement.addEventListener("mousemove", this.onMouseMove, true);
-    event.target.parentElement.parentElement.addEventListener("mouseup", this.onMouseUp, true);
-    if (event.target.offsetHeight + event.target.offsetTop - event.clientY > 4) {
-      var mouseToTopOfBlobOffset = event.clientY - this.state.blob.start;
-      var mouseToBottomOfBlobOffset = event.clientY - this.state.blob.stop;
-      this.setState({
-        mouseToTopOfBlobOffset: mouseToTopOfBlobOffset,
-        mouseToBottomOfBlobOffset: mouseToBottomOfBlobOffset,
-        mouseDown: true,
-        currentEvent: this.EVENTS.MOVE
-      });
-    } else {
-      var mouseToTopOfBlobOffset = event.clientY - this.state.blob.start;
-      var mouseToBottomOfBlobOffset = event.clientY - this.state.blob.stop;
-      this.setState({
-        mouseToTopOfBlobOffset: mouseToTopOfBlobOffset,
-        mouseToBottomOfBlobOffset: mouseToBottomOfBlobOffset,
-        mouseDown: true,
-        currentEvent: this.EVENTS.RESIZE
-      });
-    }
-  }
-
-  onMouseMove = (event) => {
-    if (this.state.mouseDown) {
-      if (this.state.currentEvent === this.EVENTS.RESIZE) {
-        var { blob } = this.state;
-        blob.stop = this.snap(event.clientY);
-        this.setState({
-          moveStart: event.clientY,
-          blob: blob
-        });
-
-      } else {
-        var {
-          mouseToTopOfBlobOffset,
-          mouseToBottomOfBlobOffset
-        } = this.state;
-        var { blob } = this.state;
-        blob.start = this.snap((event.clientY - mouseToTopOfBlobOffset));
-        blob.stop = this.snap(event.clientY - mouseToBottomOfBlobOffset);
-        this.setState({
-          moveStart: event.clientY,
-          blob: blob
-        });
-      }
-    }
-  }
-
-  onMouseUp = () => {
-    event.target.parentElement.parentElement.removeEventListener("mouseup", this.onMouseUp, false);
-    event.target.parentElement.parentElement.removeEventListener("mousemove", this.onMouseMove, false);
+  deleteBlob = (id) => {
     var { blob } = this.state;
-    this.setState({
-      mouseDown: false
-    })
-    this.props.updateBlob(blob.blobID, blob)
+    blob.visible = false;
+    this.props.deleteBlob(id)
   }
 
   render() {
@@ -108,18 +49,24 @@ export default class DateBlob extends Component {
       width: "50px",
       userSelect: "none"
     }
-
     return (
       <div
         style={blobStyle}
         className="blob"
         onClick={this.onClick}
         data-id={blob.blobID}
-        onMouseDown={this.onMouseDown}
-        onMouseMove={this.onMouseMove}
-        onMouseUp={this.onMouseUp}>
-        {blob.blobID}
+        data-click-type={this.props.temp?"temp-blob":"blob"}>
+        <span style={{cursor:"pointer", position:'absolute', top:0, right:0, padding:2, backgroundColor:"blue"}} data-id={blob.blobID} onClick={this.props.events.deleteBlob}>x</span>
+        {blob.blobID}<br />
       </div>
     )
   }
+}
+
+DateBlob.propTypes = {
+  start: PropTypes.number,
+  stop: PropTypes.number,
+  visible: PropTypes.bool,
+  background: PropTypes.string,
+  temp: PropTypes.bool
 }

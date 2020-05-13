@@ -1,0 +1,6 @@
+let MOUSE_EVENTS;
+export default MOUSE_EVENTS = {
+    RESIZE_BLOB: "RESIZE_BLOB",
+    NEW_BLOB: "NEW_BLOB",
+    MOVE_BLOB: "MOVE_BLOB"
+}

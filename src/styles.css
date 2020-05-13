@@ -31,6 +31,11 @@
 
 .headerItem {
     text-align: center;
+    height:30px;
+    display:flex;
+    place-content: center;
+    place-items: center;
+
 }
 
 .dateRow {
