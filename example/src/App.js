@@ -17,7 +17,7 @@ export default class App extends Component {
     this.setState({
       colValues: value
     })
-    console.log(value);
+    console.log(value)
   }
 
   render() {

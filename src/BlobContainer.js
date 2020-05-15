@@ -72,6 +72,9 @@ export default class BlobContainer extends React.Component {
         selectedBlobID: parseInt(event.target.dataset.id)
       });
     }
+
+    document.addEventListener('mouseup', this.onMouseUp);
+    document.addEventListener('mousemove', this.onMouseMove);
     // Determine style of mouse click
   }
 
@@ -99,6 +102,8 @@ export default class BlobContainer extends React.Component {
       default:
         break;
     }
+    document.removeEventListener('mouseup', this.onMouseUp);
+    document.removeEventListener('mousemove', this.onMouseMove);
     this.props.onChange(Array.from(this.state.blobs.values()))
   }
 
@@ -106,7 +111,7 @@ export default class BlobContainer extends React.Component {
     var { MOUSE_EVENT } = this.state;
     switch (MOUSE_EVENT) {
       case MouseEnums.RESIZE_BLOB:
-        var { blobs, selectedBlobID } = this.state;v
+        var { blobs, selectedBlobID } = this.state; v
         var tempBlob = blobs.get(selectedBlobID);
         tempBlob.stop = snap(this.state.snapValues, (event.clientY - this.state.rdpBody.offsetTop));
         blobs.set(selectedBlobID, tempBlob)
@@ -120,11 +125,10 @@ export default class BlobContainer extends React.Component {
           mouseToBottomOfBlobOffset
         } = this.state;
         var { blobs, selectedBlobID } = this.state;
-        var selectedBlob = blobs.get(selectedBlobID)
+        var selectedBlob = blobs.get(selectedBlobID);
         var newStart = snap(this.state.snapValues, (event.clientY - mouseToTopOfBlobOffset));
         var newStop = snap(this.state.snapValues, (event.clientY - mouseToBottomOfBlobOffset));
-        if (newStart > 0 && newStop < document.getElementById("BlobContainer").getBoundingClientRect().bottom) {
-
+        if (newStart >= 0 && newStop < document.getElementById("BlobContainer").getBoundingClientRect().bottom) {
           selectedBlob.start = newStart;
           selectedBlob.stop = newStop;
         }
@@ -138,7 +142,7 @@ export default class BlobContainer extends React.Component {
         // Update blob in state
         var { blobs, selectedBlobID } = this.state;
         var blob = blobs.get(selectedBlobID)
-        let stop = snap(this.state.snapValues, event.clientY - this.state.ReactDatePicker.offsetTop);
+        let stop = snap(this.state.snapValues, event.clientY - document.getElementById("BlobContainer").getBoundingClientRect().top);
         blob.stop = stop;
         blobs.set(selectedBlobID, blob);
         this.setState({

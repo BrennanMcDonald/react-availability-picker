@@ -13,20 +13,21 @@ export function snap(values, top) {
 }
 
 export function generateSnapValues(step, topOffset, clientHeight) {
-    var snap = [0]
-    var current = topOffset;
+    var snap = [-1]
+    var current = 0;
     while(current < topOffset + clientHeight) {
         snap.push(current);
         current += step;
     }
+    snap.push(topOffset + clientHeight + snap)
     return snap;
 }
 
-export function topToTime(startTime, endTime, top, total, column) {
-    var percent = top/total;
-    var deltaTime = (endTime.getTime() - startTime.getTime()) * percent;
-    var newTime = new Date((new Date(startTime)).getTime() + deltaTime);
-    newTime.setDate(startTime.getDate() + column)
+export function topToTime(startTime, endTime, percent, column, startDate) {
+    var deltaTime = (endTime - startTime) * percent;
+    var newTime = new Date();
+    newTime.setHours(startTime + deltaTime)
+    newTime.setDate(startDate + column)
     return newTime;
 }
 

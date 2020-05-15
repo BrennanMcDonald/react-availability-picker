@@ -5,6 +5,7 @@ import styles from './styles.css';
 import './styles2.css';
 import BlobContainer from './BlobContainer';
 
+import { ModeEnums } from './Enums'
 import { generateRowSizes, topToTime, generateGridCSS } from './Helpers';
 
 export default class AvailabilityPicker extends Component {
@@ -31,47 +32,60 @@ export default class AvailabilityPicker extends Component {
   constructor(props) {
     super(props);
 
-    var dayHourMode = this.props.days !== undefined && this.props.hours !== undefined
+    var dayHourMode = this.props.days !== undefined && this.props.hours !== undefined && this.props.startTime !== undefined
     var startEndMode = this.props.startDate !== undefined && this.props.stopDate !== undefined && this.props.startTime !== undefined && this.props.stopTime !== undefined
     if ((dayHourMode || startEndMode) === false)
       throw new Error("You must set either Day and Hour or Start and End times.")
 
-
-
     if (dayHourMode) {
       // Todo: checks here
       this.state = {
+        mode: ModeEnums.DAY_HOUR_MODE,
         days: this.props.days,
         hours: this.props.hours || 8,
+        startTime: this.props.startTime,
         gridRows: this.props.days + 1,
         gridColumns: this.props.hours + 1
       }
     } else {
       // Todo: checks here
       this.state = {
+        mode: ModeEnums.START_END_MODE,
         startDate: this.props.startDate,
         stopDate: this.props.stopDate,
         startTime: this.props.startTime,
-        endTime: this.props.endTime,
+        stopTime: this.props.stopTime,
         gridRows: this.props.stopDate.getDate() - this.props.startDate.getDate(),
         gridColumns: this.props.stopTime - this.props.startTime
       }
     }
-
   }
 
   onChange = (BlobList) => {
     var {
-      startTime,
-      endTime,
-      hours
+      mode,
+      startTime
     } = this.state;
-    var dateFormattedBlobs = BlobList.map(x => {
-      return {
-        startTime: topToTime(startTime, endTime, x.start, hours * 60, parseInt(x.column)),
-        endTime: topToTime(startTime, endTime, x.stop, hours * 60, parseInt(x.column)),
-      }
-    })
+    let dateFormattedBlobs;
+    var BlobContainer = document.getElementById("BlobContainer");
+    if (mode === ModeEnums.START_END_MODE) {
+      dateFormattedBlobs = BlobList.map(x => {
+        return {
+          startTime: topToTime(this.state.startTime, this.state.stopTime, x.start/BlobContainer.getBoundingClientRect().height, parseInt(x.column), this.state.startDate.getDate()),
+          endTime: topToTime(this.state.startTime, this.state.stopTime, x.stop/BlobContainer.getBoundingClientRect().height, parseInt(x.column), this.state.startDate.getDate()),
+        }
+      });
+    } else {
+      var endTime = this.state.startTime;
+      endTime.setHour(this.state.startTime.getHour() + this.state.hours)
+      dateFormattedBlobs = BlobList.map(x => {
+        return {
+          startTime: topToTime(this.state.startTime, endTime, x.start, hours * 60, parseInt(x.column), mode),
+          endTime: topToTime(this.state.startTime, endTime, x.stop, hours * 60, parseInt(x.column), mode),
+        }
+      });
+    }
+
     this.props.onChange({
       AvailableTimes: dateFormattedBlobs
     })
