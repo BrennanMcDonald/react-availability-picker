@@ -42,6 +42,7 @@ export default class AvailabilityPicker extends Component {
       this.state = {
         mode: ModeEnums.DAY_HOUR_MODE,
         days: this.props.days,
+        snap: this.props.snap,
         hours: this.props.hours || 8,
         startTime: this.props.startTime,
         gridColumns: this.props.days + 1,
@@ -51,6 +52,7 @@ export default class AvailabilityPicker extends Component {
       // Todo: checks here
       this.state = {
         mode: ModeEnums.START_END_MODE,
+        snap: this.props.snap,
         startDate: this.props.startDate,
         stopDate: this.props.stopDate,
         startTime: this.props.startTime,
@@ -114,7 +116,7 @@ export default class AvailabilityPicker extends Component {
 
     for (var row = 0; row < this.state.gridRows + 1; row++) {
       rows.push(<div key={row} style={{ width: "100%" }} data-col={col} data-row={row}>
-        <span style={{ top: "-10px", position: "relative" }}>{(this.state.startTime + row) % 24}:00</span>
+        <span style={{ top:"-9px", position: "relative" }}>{(this.state.startTime + row) % 24}:00</span>
       </div>)
     }
 
@@ -123,7 +125,7 @@ export default class AvailabilityPicker extends Component {
 
   createRows = (col) => {
     let rows = [];
-    for (var row = 0; row < this.state.gridRows; row++) {
+    for (var row = 0; row < this.state.gridRows * (60/this.props.snap); row++) {
       rows.push(<div key={row.toString() + col.toString()} data-col={col} data-row={row}></div>)
     }
     return rows
@@ -131,7 +133,7 @@ export default class AvailabilityPicker extends Component {
 
   createDays = () => {
     let RowTable = []
-    for (let col = 0; col < this.state.gridColumns; col++) {
+    for (let col = 0; col < (this.state.gridColumns); col++) {
       RowTable.push(
         <div key={col.toString()} id={`date-row-${col}`} data-col={col} className={col === -1 ? "time-row" : "date-row"} style={{height:"100%"}}>
           {this.createRows(col)}
@@ -146,10 +148,10 @@ export default class AvailabilityPicker extends Component {
     return (
       <div id="ReactDatePicker" className="rdp-grid" style={this.props.style}>
         <div className="rdp-header" style={generateColumnSizes(this.state.gridColumns)}>{this.createHeader()}</div>
-        <div className="rdp-date-column" style={generateRowSizes(this.state.gridRows + 1)}>{this.dateRow(this.state.hours)}</div>
+        <div className="rdp-date-column" style={generateRowSizes(this.state.gridRows)}>{this.dateRow(this.state.hours)}</div>
         <div className="rdp-body">
           {this.createDays()}
-          <BlobContainer cols={this.state.gridColumns} rows={this.state.gridRows} style={{ position: "absolute", width: "100%", background: "rgba(255,0,0,0.2)", top: 0, bottom: "50px" }} onChange={this.onChange} />
+          <BlobContainer snap={this.props.snap} cols={this.state.gridColumns} rows={this.state.gridRows} style={{ position: "absolute", width: "100%", background: "rgba(255,0,0,0.2)", top: 0, bottom: "50px" }} onChange={this.onChange} />
         </div>
       </div>
     );

@@ -32,7 +32,7 @@ export default class App extends Component {
           style={{ width: "700px", height: "500px" }} 
           startTime={9}
           stopTime={19}
-          snapEvery={20}
+          snap={60}
           startDate={startDate}
           stopDate={endDate}
           value={this.state.colValues}

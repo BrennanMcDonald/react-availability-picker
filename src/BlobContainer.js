@@ -21,7 +21,8 @@ export default class BlobContainer extends React.Component {
   componentDidMount() {
     var ReactDatePicker = document.getElementById("ReactDatePicker");
     var rdpBody = Array.from(ReactDatePicker.children).filter(x => x.classList.contains("rdp-body"))[0];
-    var snapValues = generateSnapValues(30, rdpBody.getBoundingClientRect().top, rdpBody.getBoundingClientRect().height)
+    var snapMinutesToPixels = (rdpBody.getBoundingClientRect().height/this.state.rows) * (this.props.snap/60);
+    var snapValues = generateSnapValues(snapMinutesToPixels, rdpBody.getBoundingClientRect().top, rdpBody.getBoundingClientRect().height)
     this.setState({
       snapValues: snapValues,
       ReactDatePicker: ReactDatePicker,
