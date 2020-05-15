@@ -1,8 +1,15 @@
-export function generateRowSizes(n) {
-    var percent = 100 / (n + 1);
-    var percentArray = Array(n + 1);
+export function generateColumnSizes(n) {
+    var percent = 100 / (n);
+    var percentArray = Array(n);
     percentArray.fill(`${percent}%`)
     return { display: "grid", gridTemplateColumns: percentArray.join(" ") }
+}
+
+export function generateRowSizes(n) {
+    var percent = 100 / (n);
+    var percentArray = Array(n);
+    percentArray.fill(`${percent}%`)
+    return { display: "grid", gridTemplateRows: percentArray.join(" ") }
 }
 
 export function snap(values, top) {

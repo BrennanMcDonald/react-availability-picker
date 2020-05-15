@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { generateRowSizes, snap, generateSnapValues } from './Helpers';
+import { snap, generateSnapValues, generateColumnSizes } from './Helpers';
 
 import DateBlob from './DateBlob';
 import { MouseEnums } from './Enums';
@@ -13,8 +13,8 @@ export default class BlobContainer extends React.Component {
       blobs: new Map(),
       MOUSE_EVENT: "",
       tempBlob: {},
-      cols: 7 | this.props.cols,
-      rows: 8 | this.props.rows,
+      cols: this.props.cols || 7,
+      rows: this.props.rows || 8,
     }
   }
 
@@ -179,7 +179,7 @@ export default class BlobContainer extends React.Component {
   render() {
     var rows = [];
     for (var i = 0; i < this.state.cols; i++) {
-      rows.push(<div data-col={i} data-click-type="blob-row">
+      rows.push(<div data-col={i} data-click-type="blob-row" style={{ position:'relative', height:'100%'}}>
         {
           Array.from(this.state.blobs.values()).filter(x => parseInt(x.column) === i).map((x, j) => {
             return (<DateBlob key={x.blobID} blob={x} events={this.events} />)
@@ -187,7 +187,7 @@ export default class BlobContainer extends React.Component {
         }
       </div>)
     }
-    return <div id="BlobContainer" data-click-type="blob-container" onMouseDown={this.onMouseDown} onMouseMove={this.onMouseMove} onMouseUp={this.onMouseUp} style={{ ...this.props.style, ...generateRowSizes(this.state.cols - 1) }}>
+    return <div id="BlobContainer" data-click-type="blob-container" onMouseDown={this.onMouseDown} onMouseMove={this.onMouseMove} onMouseUp={this.onMouseUp} style={{ ...this.props.style, ...generateColumnSizes(this.state.cols), height:'100%' }}>
       {rows}
     </div>
   }

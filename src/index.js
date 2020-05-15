@@ -6,7 +6,7 @@ import './styles2.css';
 import BlobContainer from './BlobContainer';
 
 import { ModeEnums } from './Enums'
-import { generateRowSizes, topToTime, generateGridCSS } from './Helpers';
+import { generateRowSizes, topToTime, generateColumnSizes } from './Helpers';
 
 export default class AvailabilityPicker extends Component {
   static propTypes = {
@@ -44,8 +44,8 @@ export default class AvailabilityPicker extends Component {
         days: this.props.days,
         hours: this.props.hours || 8,
         startTime: this.props.startTime,
-        gridRows: this.props.days + 1,
-        gridColumns: this.props.hours + 1
+        gridColumns: this.props.days + 1,
+        gridRows: this.props.hours + 1
       }
     } else {
       // Todo: checks here
@@ -55,33 +55,40 @@ export default class AvailabilityPicker extends Component {
         stopDate: this.props.stopDate,
         startTime: this.props.startTime,
         stopTime: this.props.stopTime,
-        gridRows: this.props.stopDate.getDate() - this.props.startDate.getDate(),
-        gridColumns: this.props.stopTime - this.props.startTime
+        gridColumns: this.props.stopDate.getDate() - this.props.startDate.getDate(),
+        gridRows: this.props.stopTime - this.props.startTime
       }
     }
   }
 
   onChange = (BlobList) => {
-    var {
-      mode,
-      startTime
-    } = this.state;
+    var { mode } = this.state;
     let dateFormattedBlobs;
     var BlobContainer = document.getElementById("BlobContainer");
+
+    const boundingTop = BlobContainer.getBoundingClientRect().top;
+    const boundingHeight = BlobContainer.getBoundingClientRect().height;
+
+    var startTime = this.state.startTime;
+    var stopTime = this.state.stopTime;
+
     if (mode === ModeEnums.START_END_MODE) {
       dateFormattedBlobs = BlobList.map(x => {
+        // Find and set hours
+        var startPercentOfBounding = x.start/boundingHeight;
+        var timeDiff = (startTime/stopTime) * startPercentOfBounding
+        console.log(timeDiff)
         return {
-          startTime: topToTime(this.state.startTime, this.state.stopTime, x.start/BlobContainer.getBoundingClientRect().height, parseInt(x.column), this.state.startDate.getDate()),
-          endTime: topToTime(this.state.startTime, this.state.stopTime, x.stop/BlobContainer.getBoundingClientRect().height, parseInt(x.column), this.state.startDate.getDate()),
+          startTime: startTime,
+          stopTime: stopTime,
         }
       });
     } else {
-      var endTime = this.state.startTime;
-      endTime.setHour(this.state.startTime.getHour() + this.state.hours)
+      var endTime = this.state.startTime + this.state.hours;
       dateFormattedBlobs = BlobList.map(x => {
         return {
           startTime: topToTime(this.state.startTime, endTime, x.start, hours * 60, parseInt(x.column), mode),
-          endTime: topToTime(this.state.startTime, endTime, x.stop, hours * 60, parseInt(x.column), mode),
+          stopTime: topToTime(this.state.startTime, endTime, x.stop, hours * 60, parseInt(x.column), mode),
         }
       });
     }
@@ -93,10 +100,10 @@ export default class AvailabilityPicker extends Component {
 
   createHeader = () => {
     let table = []
-    for (let i = 0; i < this.state.days; i++) {
+    for (let i = 0; i < this.state.gridColumns; i++) {
       table.push(
-        <div className={styles.headerItem}>
-          {this.defaultHeaders[i]}
+        <div key={i} className={styles.headerItem}>
+          {this.defaultHeaders[i % 7]}
         </div>)
     }
     return table
@@ -105,8 +112,8 @@ export default class AvailabilityPicker extends Component {
   dateRow = (col) => {
     let rows = [];
 
-    for (var row = 0; row < this.state.hours + 1; row++) {
-      rows.push(<div key={row} style={{ width: "100%", height: "60px" }} data-col={col} data-row={row}>
+    for (var row = 0; row < this.state.gridRows + 1; row++) {
+      rows.push(<div key={row} style={{ width: "100%" }} data-col={col} data-row={row}>
         <span style={{ top: "-10px", position: "relative" }}>{(this.state.startTime + row) % 24}:00</span>
       </div>)
     }
@@ -116,38 +123,33 @@ export default class AvailabilityPicker extends Component {
 
   createRows = (col) => {
     let rows = [];
-    for (var row = 0; row < this.state.hours; row++) {
-      rows.push(<div key={row.toString() + col.toString()} data-col={col} data-row={row} className={"row"}></div>)
+    for (var row = 0; row < this.state.gridRows; row++) {
+      rows.push(<div key={row.toString() + col.toString()} data-col={col} data-row={row}></div>)
     }
     return rows
   }
 
   createDays = () => {
     let RowTable = []
-    for (let col = 0; col < this.state.days; col++) {
-
-      let colBlobs = this.state.blobs.filter(x => x.column == col);
-      if (this.state.blob.column == col) {
-        colBlobs.push(this.state.blob)
-      }
+    for (let col = 0; col < this.state.gridColumns; col++) {
       RowTable.push(
-        <div key={col.toString()} id={`date-row-${col}`} data-col={col} className={col === -1 ? "time-row" : "date-row"}>
+        <div key={col.toString()} id={`date-row-${col}`} data-col={col} className={col === -1 ? "time-row" : "date-row"} style={{height:"100%"}}>
           {this.createRows(col)}
         </div>)
     }
     return <div id="RowContainer">
-      <div style={generateRowSizes(this.state.gridRows - 1)}>{RowTable}</div>
+      <div style={{...generateColumnSizes(this.state.gridColumns), height:"100%"}}>{RowTable}</div>
     </div>
   }
 
   render() {
     return (
       <div id="ReactDatePicker" className="rdp-grid" style={this.props.style}>
-        <div className="rdp-header">{this.createHeader()}</div>
-        <div className="rdp-date-column">{this.dateRow()}</div>
+        <div className="rdp-header" style={generateColumnSizes(this.state.gridColumns)}>{this.createHeader()}</div>
+        <div className="rdp-date-column" style={generateRowSizes(this.state.gridRows + 1)}>{this.dateRow(this.state.hours)}</div>
         <div className="rdp-body">
           {this.createDays()}
-          <BlobContainer style={{ position: "absolute", width: "100%", background: "rgba(255,0,0,0.2)", top: 0, bottom: "50px" }} onChange={this.onChange} />
+          <BlobContainer cols={this.state.gridColumns} rows={this.state.gridRows} style={{ position: "absolute", width: "100%", background: "rgba(255,0,0,0.2)", top: 0, bottom: "50px" }} onChange={this.onChange} />
         </div>
       </div>
     );

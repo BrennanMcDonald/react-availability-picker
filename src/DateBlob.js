@@ -46,7 +46,7 @@ export default class DateBlob extends Component {
       width: "100px",
       position: "absolute",
       backgroundColor: "red",
-      width: "50px",
+      width: "90%",
       userSelect: "none"
     }
     return (
@@ -56,7 +56,7 @@ export default class DateBlob extends Component {
         onClick={this.onClick}
         data-id={blob.blobID}
         data-click-type={this.props.temp?"temp-blob":"blob"}>
-        <span style={{cursor:"pointer", position:'absolute', top:0, right:0, padding:2, backgroundColor:"blue"}} data-id={blob.blobID} onClick={this.props.events.deleteBlob}>x</span>
+        <span style={{cursor:"pointer", position:'absolute', top:0, right:0, padding:2, backgroundColor:"blue", userSelect:"none"}} data-id={blob.blobID} onClick={this.props.events.deleteBlob}>x</span>
         {blob.blobID}<br />
       </div>
     )

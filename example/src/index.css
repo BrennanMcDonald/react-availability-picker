@@ -83,3 +83,7 @@ body {
     position: relative;
     border:solid 1px green;
 }
+
+#RowContainer {
+    height:100%;
+}

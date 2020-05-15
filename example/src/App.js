@@ -9,7 +9,7 @@ export default class App extends Component {
     super(props);
 
     this.state = {
-      colValues: []
+      colValues: {AvailableTimes: []}
     }
   }
 
@@ -24,18 +24,26 @@ export default class App extends Component {
     var startDate = new Date();
     var endDate = new Date();
 
-    endDate.setDate(startDate.getDate() + 7)
+    endDate.setDate(startDate.getDate() + 14)
 
     return (
       <div className="fullheight">
         <AvailabilityPicker 
-          style={{ width: "500px", height: "500px" }} 
+          style={{ width: "700px", height: "500px" }} 
           startTime={9}
-          stopTime={20}
+          stopTime={19}
+          snapEvery={20}
           startDate={startDate}
           stopDate={endDate}
           value={this.state.colValues}
           onChange={this.onChange} />
+          <div>
+            {
+              this.state.colValues.AvailableTimes.map(x => {
+                return <div>{x.startTime.toString()} -> {x.stopTime.toString()}</div>
+              })
+            }
+          </div>
       </div>
     )
   }
