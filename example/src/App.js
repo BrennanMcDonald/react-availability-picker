@@ -33,7 +33,7 @@ export default class App extends Component {
           stopTime={19}
           snap={60}
           startDate={startDate}
-          stopDate={endDate}
+          endDate={endDate}
           value={this.state.colValues}
           onChange={this.onChange} />
           <div>

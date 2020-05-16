@@ -11,9 +11,9 @@ export class AvailabilityPicker extends Component {
   static propTypes = {
     // If using start-end mode
     startDate: PropTypes.instanceOf(Date),
-    stopDate: PropTypes.instanceOf(Date),
+    endDate: PropTypes.instanceOf(Date),
     startTime: PropTypes.number,
-    stopTime: PropTypes.number,
+    endTime: PropTypes.number,
 
     // If using day-hour mode
     days: PropTypes.number,
@@ -32,7 +32,7 @@ export class AvailabilityPicker extends Component {
     super(props);
 
     var dayHourMode = this.props.days !== undefined && this.props.hours !== undefined && this.props.startTime !== undefined
-    var startEndMode = this.props.startDate !== undefined && this.props.stopDate !== undefined && this.props.startTime !== undefined && this.props.stopTime !== undefined
+    var startEndMode = this.props.startDate !== undefined && this.props.endDate !== undefined && this.props.startTime !== undefined && this.props.stopTime !== undefined
     if ((dayHourMode || startEndMode) === false)
       throw new Error("You must set either Day and Hour or Start and End times.")
 
@@ -53,10 +53,10 @@ export class AvailabilityPicker extends Component {
         mode: ModeEnums.START_END_MODE,
         snap: this.props.snap,
         startDate: this.props.startDate,
-        stopDate: this.props.stopDate,
+        endDate: this.props.endDate,
         startTime: this.props.startTime,
         stopTime: this.props.stopTime,
-        gridColumns: this.props.stopDate.getDate() - this.props.startDate.getDate(),
+        gridColumns: this.props.endDate.getDate() - this.props.startDate.getDate(),
         gridRows: this.props.stopTime - this.props.startTime
       }
     }
