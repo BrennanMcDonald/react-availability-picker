@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 
-
 import AvailabilityPicker from 'react-availability-picker'
 
 export default class App extends Component {

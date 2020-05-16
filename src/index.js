@@ -2,13 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import styles from './styles.css';
-import './styles2.css';
 import BlobContainer from './BlobContainer';
 
 import { ModeEnums } from './Enums'
 import { generateRowSizes, topToTime, generateColumnSizes } from './Helpers';
 
-export default class AvailabilityPicker extends Component {
+export class AvailabilityPicker extends Component {
   static propTypes = {
     // If using start-end mode
     startDate: PropTypes.instanceOf(Date),
